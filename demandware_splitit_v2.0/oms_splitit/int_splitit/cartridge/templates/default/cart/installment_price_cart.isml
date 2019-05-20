@@ -1,0 +1,17 @@
+<isset name="displayOnCartPage" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_DisplayOnCartPage')}" scope="page" />
+<isset name="displayOnCheckoutPage" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_DisplayOnCheckoutPage')}" scope="page" />
+<isset name="insterestFreeText" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_InterestFreeText')}" scope="page" />
+<isset name="isCartPage" value="${request.httpPath.toLowerCase().indexOf('cart')>-1}" scope="page" />
+<isset name="isCheckoutPage" value="${(request.httpPath.toLowerCase().indexOf('shipping')>-1)||(request.httpPath.indexOf('COShipping-SingleShipping')>-1)||(request.httpPath.indexOf('COBilling-Billing')>-1)}" scope="page" />
+<isset name="terms" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_NumberOfInstallmentsToShow').value}" scope="page" />
+<isscript>
+	var ServiceHelper = require('/int_splitit/cartridge/scripts/payment/util/ServiceHelper.ds');
+</isscript>
+<isif condition="${displayOnCartPage && isCartPage}" >
+	<isprint value="${terms}" /> x <isprint value="${ServiceHelper.calculateInstallment(orderTotalValue.value, terms)}" />
+	<isprint value="${insterestFreeText}"/>
+</isif>
+<isif condition="${displayOnCheckoutPage && isCheckoutPage}" >
+	<isprint value="${terms}" /> x <isprint value="${ServiceHelper.calculateInstallment(orderTotalValue.value, terms)}" />
+	<isprint value="${insterestFreeText}"/>
+</isif>

@@ -1,0 +1,89 @@
+/**
+* Script file for use in the Script pipelet node.
+* To define input and output parameters, create entries of the form:
+*
+* @<paramUsageType> <paramName> : <paramDataType> [<paramComment>]
+*
+* where
+*   <paramUsageType> can be either 'input' or 'output'
+*   <paramName> can be any valid parameter name
+*   <paramDataType> identifies the type of the parameter
+*   <paramComment> is an optional comment
+*
+* For example:
+*
+*-- @input order : Object
+* @input CancelOrderStatus : Object
+* @input Order : Object
+* @output CancelOrderStatus : Object
+* @output SplititError : Object
+* @output OrderStatus : String
+*
+*/
+
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var pdict : PipelineDictionary = args;
+	var orderStatus : Object = pdict.CancelOrderStatus;
+	var order : Object = pdict.Order;
+	var orderNo = order.orderNo;
+	if(!order.paymentInstrument.paymentTransaction.custom.installmentPlanNumber){
+		pdict.SplititError="No Installment Plan Number found. Invalid Order for splitit.";
+        return PIPELET_ERROR;
+	}
+	var installmentPlanNumber = order.paymentInstrument.paymentTransaction.custom.installmentPlanNumber;
+	var amount = order.paymentInstrument.paymentTransaction.amount.value;
+	var cancelCode = order.cancelCode.value;
+    // require scripts or system libs here    
+    var logger = require('dw/system/Logger');
+    var SplititService = require('/int_splitit/cartridge/scripts/payment/service/SplititService.ds');
+    
+    // Calling the splitit login service
+    var result = SplititService.call({
+        operation: 'Login'
+    });
+
+    if (result.object.error) {
+        pdict.SplititError=result.object.errorMessage;
+        return PIPELET_ERROR;
+    }
+
+    // Store this in the session
+    session.privacy.splititSessionId = result.object.sessionId;
+    
+    if(cancelCode=="SplititCancel"){
+	    // Calling the splitit cancel plan service
+	    var result = SplititService.call({
+	        operation: 'cancel',
+	        orderNo: orderNo,
+	        installmentPlanNumber: installmentPlanNumber
+	    });
+	    pdict.OrderStatus = "cancel";
+    } else if(cancelCode=="SplititRefund"){
+    	// Calling the splitit refund plan service
+	    var result = SplititService.call({
+	        operation: 'refund',
+	        orderNo: orderNo,
+	        amount: amount,
+	        installmentPlanNumber: installmentPlanNumber
+	    });
+	    pdict.OrderStatus = "refund";
+    }
+
+    if (result.object.error) {
+        pdict.SplititError=result.object.errorMessage;
+        return PIPELET_ERROR;
+    }
+
+    // read pipeline dictionary input parameter
+    // ... = args.ExampleIn;
+
+    // insert business logic here
+
+    // write pipeline dictionary output parameter
+
+    // args.ExampleOut = ...
+
+   return PIPELET_NEXT;
+}

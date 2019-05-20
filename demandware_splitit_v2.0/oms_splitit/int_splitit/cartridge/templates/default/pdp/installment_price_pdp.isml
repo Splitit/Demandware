@@ -1,0 +1,11 @@
+<isset name="displayOnProductPage" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_DisplayOnProductPage')}" scope="page" />
+<isset name="insterestFreeText" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_InterestFreeText')}" scope="page" />
+<isset name="terms" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('splitit_NumberOfInstallmentsToShow').value}" scope="page" />
+
+<isscript>
+	var ServiceHelper = require('/int_splitit/cartridge/scripts/payment/util/ServiceHelper.ds');
+</isscript>
+<isif condition="${displayOnProductPage}" >
+	<isprint value="${terms}" /> x <isprint value="${ServiceHelper.calculateInstallment(pdict.displayPrice.value, terms)}" />
+	<isprint value="${insterestFreeText}"/>
+</isif>

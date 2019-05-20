@@ -1,0 +1,71 @@
+<!--- TEMPLATENAME: orderlist.isml --->
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<!-- EO Page Navigator -->
+<h1 class="overview_title">Orders List</h1>
+<h2 class="table_title_description">
+	This Business Manager Module gives you the possibility to search the orders.	
+</h2>
+<table style="width:90%" class="n w e s aldi">
+	<tr style="vertical-align: top;">
+		<th class="table_title aldi left">Enter your order number & details to cancel or refund</th>
+	</tr>
+	<tr>
+		<td class="infobox" style="vertical-align: top;">						
+			<form action="${URLUtils.url('BMOrder-GetOrders')}" method="post">
+				<table>						
+					<tr>					
+						<td>
+							<isinputfield formfield="${pdict.CurrentForms.cancel.orderNo}" type="input" attribute1="style" value1="width:400px;"/>
+						</td>						
+					</tr>
+					<isif condition="${pdict.OrdersCount > 0}">
+						<tr><td>&nbsp;</td></tr>
+						<tr><td>&nbsp;</td><td>&nbsp;</td><td><table width="100%" cellspacing="0" cellpadding="0" border="0.5">
+						<tr>
+							<td class="table_header w e s">Order Number</td>							
+							<td class="table_header w e s">Customer Name</td>
+							<td class="table_header w e s">Customer Email</td>
+							<td class="table_header w e s">Order Status</td>
+							<td class="table_header w e s">Export Status</td>
+							<td class="table_header w e s">Action</td>
+						</tr>
+						<isloop items="${pdict.Orders}" var="order">
+							<tr>								
+								<td class="table_detail w e s">
+									${order.orderNo}
+								</td>							
+								<td class="table_detail w e s">
+									${order.getCustomerName()}
+								</td>
+								<td class="table_detail w e s">
+									${order.getCustomerEmail()}
+								</td>	
+								<td class="table_detail w e s">
+									${order.status}
+								</td>
+								<td class="table_detail w e s">
+									${order.exportStatus}
+								</td>
+								<td class="table_detail w e s">
+									<a class="button" href="${URLUtils.url('BMOrder-Start','orderNo',order.orderNo,'action','cancel')}">Cancel</a>
+									<a class="button" href="${URLUtils.url('BMOrder-Start','orderNo',order.orderNo,'action','refund')}">Refund</a>
+								</td>
+							</tr>
+						</isloop>
+						</table></td></tr>						
+					</isif>
+					<tr>
+						<td>&nbsp;</td><td>&nbsp;</td>
+						<td class="right">
+							<input class="button" id="search" name="search" type="submit" value="Search" />							
+						</td>
+					</tr>	
+				</table>	
+			</form>
+		</td>
+	</tr>
+</table>			
+</isdecorate>

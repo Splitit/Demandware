@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+   
+   <type-extension type-id="OrderPaymentInstrument">
+        <system-attribute-definitions>
+            <attribute-definition attribute-id="UUID">
+                <min-length>0</min-length>
+                <field-length>28</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="bankAccountDriversLicense">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="bankAccountDriversLicenseStateCode">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="bankAccountHolder">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="bankRoutingNumber">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creationDate"/>
+            <attribute-definition attribute-id="creditCardExpirationMonth"/>
+            <attribute-definition attribute-id="creditCardExpirationYear"/>
+            <attribute-definition attribute-id="creditCardHolder">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creditCardIssueNumber">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creditCardNumber">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creditCardType">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creditCardValidFromMonth"/>
+            <attribute-definition attribute-id="creditCardValidFromYear"/>
+            <attribute-definition attribute-id="lastModified"/>
+            <attribute-definition attribute-id="paymentMethod">
+                <min-length>0</min-length>
+            </attribute-definition>
+        </system-attribute-definitions>
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="splitit_NumberOfInstallments">
+                <display-name xml:lang="x-default">No. of Installments</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+   
+   <type-extension type-id="PaymentCard">
+        <system-attribute-definitions>
+            <attribute-definition attribute-id="UUID">
+                <min-length>0</min-length>
+                <field-length>28</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="cardType">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creationDate"/>
+            <attribute-definition attribute-id="description"/>
+            <attribute-definition attribute-id="image"/>
+            <attribute-definition attribute-id="lastModified"/>
+            <attribute-definition attribute-id="name">
+                <min-length>0</min-length>
+            </attribute-definition>
+        </system-attribute-definitions>
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="splitit_UseThisCard">
+                <display-name xml:lang="x-default">Use this card in Splitit</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Splitit">
+                <display-name xml:lang="x-default">Splitit</display-name>
+                <attribute attribute-id="splitit_UseThisCard"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+   
+   <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="GoogleVerificationTag">
+                <display-name xml:lang="x-default">GoogleVerificationTag - Content Attribute</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="buildNotificationEmailList">
+                <display-name xml:lang="x-default">Build Notification Email List</display-name>
+                <description xml:lang="x-default">Semicolon separated list</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="checkTLS">
+                <display-name xml:lang="x-default">Check TLS</display-name>
+                <description xml:lang="x-default">When true, this causes a TLS check to take place based on whether or not a cookie ('dw_TLSWarning') has been set on the browser</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="countryCode">
+                <display-name xml:lang="x-default">Default Country Code</display-name>
+                <description xml:lang="x-default">Default country code for store searches</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">USA</display>
+                        <value>US</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">CANADA</display>
+                        <value>CA</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="customerServiceEmail">
+                <display-name xml:lang="x-default">Customer Service Email</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+                <default-value>noreply@salesforce.com</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="disableResponsiveDesign">
+                <display-name xml:lang="x-default">Disable Responsive Design</display-name>
+                <description xml:lang="x-default">Disable Responsive Design for Storefront</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableInfiniteScroll">
+                <display-name xml:lang="x-default">Enable Infinite Scroll</display-name>
+                <description xml:lang="x-default">This Boolean toggles the option for infinite scrolling or pagination from within the search grid.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableMultiShipping">
+                <display-name xml:lang="x-default">Enable MultiShipping</display-name>
+                <description xml:lang="x-default">The attribute is used to enable/disable Multi-Shipment Checkout for each site via BM.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableStorePickUp">
+                <display-name xml:lang="x-default">Enable In Store Pickup</display-name>
+                <description xml:lang="x-default">This Boolean enables the storefront ability to perform tasks related to in store orders</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="listPriceDefault">
+                <display-name xml:lang="x-default">Default List Price Book ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>usd-list-prices</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="rateLimiterThreshold">
+                <display-name xml:lang="x-default">Rate Limiter Threshold</display-name>
+                <description xml:lang="x-default">This number indicates the number of times failures for Logins, GiftCert Balances, and Order Tracking requests will be allowed before displaying a CAPTCHA-style pop-up rate limiter</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-value>0.0</min-value>
+                <default-value>5</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="slideshoweffect">
+                <display-name xml:lang="x-default">Slide Slow effect</display-name>
+                <description xml:lang="x-default">Please visit http://jquery.malsup.com/cycle/browser.html for complete visual effects</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">blindX (slide from left)</display>
+                        <value>blindX</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">blindY (slide from bottom)</display>
+                        <value>blindY</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">blindZ (slide from bottom right corner)</display>
+                        <value>blindZ</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">cover (slide from left, clean)</display>
+                        <value>cover</value>
+                    </value-definition>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">curtainX (expand from center horizontally)</display>
+                        <value>curtainX</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">curtainY (expand from center vertically)</display>
+                        <value>curtainY</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">fade</display>
+                        <value>fade</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">fadeZoom (Zoom out from center)</display>
+                        <value>fadeZoom</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">growX (grow from center horizontally)</display>
+                        <value>growX</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">growY (grow from center vertically)</display>
+                        <value>growY</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">none (No effects)</display>
+                        <value>none</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollUp (Scroll Up)</display>
+                        <value>scrollUp</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollDown (Scroll Down)</display>
+                        <value>scrollDown</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollLeft (Scroll Left)</display>
+                        <value>scrollLeft</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollRight (Scroll Right)</display>
+                        <value>scrollRight</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollHorz (Scroll Horizontally)</display>
+                        <value>scrollHorz</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">scrollVert (Scroll Vertically)</display>
+                        <value>scrollVert</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">shuffle</display>
+                        <value>shuffle</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">slideX (Slide to the right)</display>
+                        <value>slideX</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">slideY (Slide Bottom)</display>
+                        <value>slideY</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">toss</display>
+                        <value>toss</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">turnUp</display>
+                        <value>turnUp</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">turnDown</display>
+                        <value>turnDown</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">turnLeft</display>
+                        <value>turnLeft</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">turnRight</display>
+                        <value>turnRight</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">uncover</display>
+                        <value>uncover</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">wipe</display>
+                        <value>wipe</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">zoom</display>
+                        <value>zoom</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_ApiKey">
+                <display-name xml:lang="x-default">API Key</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_DisplayOnCartPage">
+                <display-name xml:lang="x-default">Display on Cart Page</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_DisplayOnCheckoutPage">
+                <display-name xml:lang="x-default">Display On Checkout Page</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_DisplayOnProductPage">
+                <display-name xml:lang="x-default">Display on Product Page</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_FirstPayment">
+                <display-name xml:lang="x-default">First Payment</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Equal to Monthly Payment</display>
+                        <value>equal</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Add Shipping &amp; Taxes</display>
+                        <value>shipping_taxes</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Add Shipping</display>
+                        <value>shipping</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Add Taxes</display>
+                        <value>tax</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Equal to percentage of the order</display>
+                        <value>percentage</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_InstallmentOptionsToOffer">
+                <display-name xml:lang="x-default">Installment Options To Offer</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">2 Installments</display>
+                        <value>2</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">3 Installments</display>
+                        <value>3</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">4 Installments</display>
+                        <value>4</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">5 Installments</display>
+                        <value>5</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">6 Installments</display>
+                        <value>6</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">7 Installments</display>
+                        <value>7</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">8 Installments</display>
+                        <value>8</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">9 Installments</display>
+                        <value>9</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">10 Installments</display>
+                        <value>10</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">11 Installments</display>
+                        <value>11</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">12 Installments</display>
+                        <value>12</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_InterestFreeText">
+                <display-name xml:lang="x-default">Text to Show For Interest Free</display-name>
+                <description xml:lang="x-default">Example: 5 x 23.5 $ Interest Free</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_LearnMoreLink">
+                <display-name xml:lang="x-default">Learn More Link</display-name>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_NumberOfInstallmentsToShow">
+                <display-name xml:lang="x-default">No. of Installments to Display</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">2 Installments</display>
+                        <value>2</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">3 Installments</display>
+                        <value>3</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">4 Installments</display>
+                        <value>4</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">5 Installments</display>
+                        <value>5</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">6 Installments</display>
+                        <value>6</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">7 Installments</display>
+                        <value>7</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">8 Installments</display>
+                        <value>8</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">9 Installments</display>
+                        <value>9</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">10 Installments</display>
+                        <value>10</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">11 Installments</display>
+                        <value>11</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">12 Installments</display>
+                        <value>12</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_PaymentAction">
+                <display-name xml:lang="x-default">Payment Action</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Charge my consumer at the time of the purchase</display>
+                        <value>authorize_capture</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Charge my consumer when the shipment is ready</display>
+                        <value>authorize</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="splitit_PercentageOfOrderValue">
+                <display-name xml:lang="x-default">Percentage Of Order Value</display-name>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <unit xml:lang="x-default">%</unit>
+                <min-value>0.0</min-value>
+                <max-value>50.0</max-value>
+                <default-value>0.0</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="storeLookupMaxDistance">
+                <display-name xml:lang="x-default">Store Lookup Max Distance</display-name>
+                <description xml:lang="x-default">Store Lookup Max Distance</description>
+                <type>enum-of-int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">50</display>
+                        <value>50</value>
+                    </value-definition>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">75</display>
+                        <value>75</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">100</display>
+                        <value>100</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">150</display>
+                        <value>150</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">200</display>
+                        <value>200</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="storeLookupUnit">
+                <display-name xml:lang="x-default">Store Lookup Unit</display-name>
+                <description xml:lang="x-default">Used in finding the store near the ZIP code specified in the storefront by the end user.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">kilometers</display>
+                        <value>km</value>
+                    </value-definition>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">miles</display>
+                        <value>mi</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Storefront Configs">
+                <display-name xml:lang="x-default">Storefront Configurations</display-name>
+                <attribute attribute-id="listPriceDefault"/>
+                <attribute attribute-id="disableResponsiveDesign"/>
+                <attribute attribute-id="GoogleVerificationTag"/>
+                <attribute attribute-id="buildNotificationEmailList"/>
+                <attribute attribute-id="slideshoweffect"/>
+                <attribute attribute-id="enableInfiniteScroll"/>
+                <attribute attribute-id="enableMultiShipping"/>
+                <attribute attribute-id="enableStorePickUp"/>
+                <attribute attribute-id="countryCode"/>
+                <attribute attribute-id="storeLookupUnit"/>
+                <attribute attribute-id="storeLookupMaxDistance"/>
+                <attribute attribute-id="customerServiceEmail"/>
+                <attribute attribute-id="rateLimiterThreshold"/>
+                <attribute attribute-id="checkTLS"/>
+            </attribute-group>
+            <attribute-group group-id="SPLITIT">
+                <display-name xml:lang="x-default">Splitit Configurations</display-name>
+                <attribute attribute-id="splitit_ApiKey"/>
+                <attribute attribute-id="splitit_InstallmentOptionsToOffer"/>
+                <attribute attribute-id="splitit_NumberOfInstallmentsToShow"/>
+                <attribute attribute-id="splitit_DisplayOnProductPage"/>
+                <attribute attribute-id="splitit_DisplayOnCartPage"/>
+                <attribute attribute-id="splitit_DisplayOnCheckoutPage"/>
+                <attribute attribute-id="splitit_InterestFreeText"/>
+                <attribute attribute-id="splitit_FirstPayment"/>
+                <attribute attribute-id="splitit_PercentageOfOrderValue"/>
+                <attribute attribute-id="splitit_PaymentAction"/>
+                <attribute attribute-id="splitit_LearnMoreLink"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="PaymentTransaction">
+        <system-attribute-definitions>
+            <attribute-definition attribute-id="UUID">
+                <min-length>0</min-length>
+                <field-length>28</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="creationDate"/>
+            <attribute-definition attribute-id="lastModified"/>
+            <attribute-definition attribute-id="transactionID">
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="type">
+                <value-definitions immutable="true">
+                    <value-definition>
+                        <display xml:lang="x-default">Authorization</display>
+                        <value>TYPE_AUTH</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Authorization Reversal</display>
+                        <value>TYPE_AUTH_REVERSAL</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Capture</display>
+                        <value>TYPE_CAPTURE</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Credit</display>
+                        <value>TYPE_CREDIT</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </system-attribute-definitions>
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="eFundsTransactionHistory">
+                <display-name xml:lang="x-default">eFunds Transaction History</display-name>
+                <type>set-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="installmentPlanNumber">
+                <display-name xml:lang="x-default">Installment Plan Number (IPN)</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Custom">
+                <display-name xml:lang="x-default">Custom</display-name>
+                <attribute attribute-id="eFundsTransactionHistory"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+</metadata>

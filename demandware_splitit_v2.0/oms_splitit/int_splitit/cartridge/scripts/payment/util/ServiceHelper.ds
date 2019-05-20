@@ -1,0 +1,459 @@
+'use strict';
+
+var Site = require('dw/system/Site');
+var OrderMgr = require('dw/order/OrderMgr');
+var Currency = require('dw/util/Currency');
+var Decimal = require('dw/util/Decimal');
+var ArrayList = require('dw/util/ArrayList');
+var Resource = require('dw/web/Resource');
+
+/**
+ * Create request for the service
+ * @param service
+ * @param params
+ * @returns {*}
+ */
+exports.createRequest = function(service, params) {
+
+    var request = null;
+    var operation = params.operation;
+
+    service.addHeader('Content-Type', 'application/json');
+    service.setRequestMethod('POST');
+    service.setAuthentication('NONE'); // required as expected by Splitit
+    service.setURL(service.getConfiguration().getCredential().getURL());
+
+    switch(operation.toLowerCase()) {
+
+        case 'login':
+            session.privacy.splititSessionId = null;
+            service.setURL(service.getURL() + '/api/Login?format=json');
+            request = getLoginRequest(service);
+            break;
+        case 'initiate':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/Initiate?format=json');
+            request = getInitiateRequest(params);
+            break;
+        case 'create':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/Create?format=json');
+            request = getCreateRequest(params);
+            break;
+        case 'updateplan':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/Update?format=json');
+            request = getUpdatePlanRequest(params);
+            break;
+        case 'cancel':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/Cancel?format=json');
+            request = getCancelPlanRequest(params);
+            break;
+        case 'refund':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/Refund?format=json');
+            request = getRefundPlanRequest(params);
+            break;
+        case 'start':
+            service.setURL(service.getURL() + '/api/InstallmentPlan/StartInstallments?format=json');
+            request = getStartInstallmentRequest(params);
+            break;
+        default:
+            new Error('Cannot find the operation ' + operation);
+    }
+
+	return request;
+};
+
+/**
+ * Parse the response from the service
+ * @param service
+ * @param response
+ * @returns {*}
+ */
+exports.responseParser = function(service, response) {
+
+    var result = {
+        error: false
+    };
+
+	if (response.statusCode !== 200) {
+		result.errorMessage = response.statusMessage;
+		result.error = true;
+
+		return result;
+	}
+
+	var responseObject = JSON.parse(response.text);
+
+	if(responseObject.ResponseHeader.Succeeded) {
+
+		if(service.getURL().indexOf('Login') > -1) {
+			result.sessionId = responseObject.SessionId;
+	    } else if (service.getURL().indexOf('Initiate') > -1 || service.getURL().indexOf('Create') > -1) {
+            result.installmentPlanNumber = responseObject.InstallmentPlan.InstallmentPlanNumber;
+	    }
+
+	} else {
+        result.error = true;
+        result.errorMessage = !empty(responseObject.ResponseHeader.Errors) ? formatErrorMessage(responseObject.ResponseHeader.Errors[0]): '';
+	}
+
+	return result;
+};
+
+/**
+ * Calculate the installment and return the string representation
+ * @param priceValue
+ * @param terms
+ * @returns {string}
+ */
+exports.calculateInstallment = function(priceValue, terms) {
+    var amount = new Decimal(priceValue).divide(terms).round(2);
+    var currencySymbol = Currency.getCurrency(Site.getCurrent().getDefaultCurrency()).getSymbol();
+
+	return 	currencySymbol + ' ' + amount;
+};
+
+/**
+ * Set cards which are applicable in Splitit and assigned in Business Manager
+ * @param applicablePaymentCards
+ * @param billingForm
+ */
+exports.setSplititPaymentCards = function(applicablePaymentCards, billingForm) {
+
+    var splititCards = new ArrayList();
+
+    for (var index in applicablePaymentCards.iterator()) {
+
+	    	var paymentCard = applicablePaymentCards[index];
+
+	    	if (paymentCard.custom.splitit_UseThisCard) {
+                splititCards.push(paymentCard);
+            }
+    }
+    // Populate the same cards for splitit but filter non-allowed ones
+    billingForm.object.paymentMethods.creditCardSplitit.type.setOptions(splititCards.iterator());
+    billingForm.object.paymentMethods.creditCardSplitit.typeImage.setOptions(splititCards.iterator());
+
+};
+
+/**
+ * Populate selected installment options on the storefront
+ * @param cart
+ * @param billingForm
+ */
+exports.setSplititInstallmentOptions = function(cart, billingForm) {
+	var installmentOptionsToOffer = new ArrayList(Site.current.preferences.custom.splitit_InstallmentOptionsToOffer);
+	var options = new ArrayList();
+	for (var index in installmentOptionsToOffer.iterator()) {
+
+		var value = installmentOptionsToOffer[index].value;
+		var displayValue = installmentOptionsToOffer[index].displayValue + ' - ' + exports.calculateInstallment(cart.getTotalGrossPrice().value, new Number(value)).trim() + '/mon';
+		options.push({
+			value: value,
+			displayValue: displayValue
+		});
+	}
+
+	 // Populate only selected installment options
+    billingForm.object.paymentMethods.numberOfInstallments.setOptions(options.iterator());
+};
+
+/**
+ * Get a site preference
+ * @param preferenceId
+ * @returns {*}
+ */
+function getPreference(preferenceId) {
+    return Site.getCurrent().getCustomPreferenceValue(preferenceId);
+};
+
+/**
+ * Get the request JSON for login operation
+ * @param service
+ * @returns {string}
+ */
+function getLoginRequest(service) {
+
+	var credentials = service.getConfiguration().getCredential();
+
+    var loginRequest = {
+        UserName: credentials.getUser(),
+        Password: credentials.getPassword(),
+        TouchPoint: {
+            Code: Resource.msg('touch.point.name', 'splitit', 'Demandware'),
+            Version: Resource.msg('touch.point.version', 'splitit', '1.0')
+        }
+    };
+
+    return JSON.stringify(loginRequest);
+}
+
+/**
+ * Get the request JSON for initiate operation
+ * @param params
+ * @returns {string}
+ */
+function getInitiateRequest(params) {
+	var cart = params.cart.object;
+	var billingAddress = cart.billingAddress;
+	var paymentInstrument = cart.getPaymentInstruments('SPLITIT')[0];
+	var firstInstallmentAmount = new Decimal(0.00);
+	var selectedInstallment = paymentInstrument.custom.splitit_NumberOfInstallments;
+	var firstPayment = Site.current.preferences.custom.splitit_FirstPayment;
+	var paymentAction = Site.current.preferences.custom.splitit_PaymentAction;
+	var percentageOfOrder = Site.current.preferences.custom.splitit_PercentageOfOrderValue;
+	var autocapture = false;
+	var totalAmount = cart.getTotalGrossPrice().value;
+	if(paymentAction.value == "authorize_capture"){
+		autocapture = true;
+	}
+	
+	if(firstPayment.value == "equal"){
+        firstInstallmentAmount = totalAmount/selectedInstallment;
+    }else if(firstPayment.value == "shipping_taxes"){
+        var shippingAmount = cart.getShippingTotalPrice().value;//SHIPPING
+        var taxAmount = cart.getTotalTax().value;//TAX
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+shippingAmount+taxAmount;
+    }else if(firstPayment.value == "shipping"){
+        var shippingAmount = cart.getShippingTotalPrice().value;//SHIPPING
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+shippingAmount;
+    }else if(firstPayment.value == "tax"){
+        var taxAmount = cart.getTotalTax().value;//TAX
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+taxAmount;
+    }else if(firstPayment.value == "percentage"){
+        if(percentageOfOrder > 50){
+            percentageOfOrder = 50;
+        }
+        firstInstallmentAmount = ((totalAmount*percentageOfOrder)/100);
+    }
+    
+    firstInstallmentAmount = new Decimal(firstInstallmentAmount);
+
+    var initiateRequest = {
+        RequestHeader: {
+		   SessionId: session.privacy.splititSessionId || '',
+		   ApiKey: getPreference('splitit_ApiKey')
+   		},
+        PlanData: {
+            Amount: {
+                Value: cart.getTotalGrossPrice().value,
+                CurrencyCode: cart.getTotalGrossPrice().currencyCode
+            },
+            RefOrderNumber: '',
+            AutoCapture: autocapture,
+            FirstInstallmentAmount: {
+                    Value: firstInstallmentAmount.round(2).toString(),
+                    CurrencyCode: cart.getTotalGrossPrice().currencyCode
+            }
+        },
+        BillingAddress: {
+            AddressLine: billingAddress.address1,
+            AddressLine2: billingAddress.address2,
+            City: billingAddress.city,
+            State: billingAddress.stateCode,
+            Country: billingAddress.countryCode.value,
+            Zip: billingAddress.postalCode
+        },
+        ConsumerData: {
+            FullName: billingAddress.fullName,
+            Email: cart.customerEmail,
+            PhoneNumber: billingAddress.phone,
+            CultureName: getLocale()
+        },
+        PaymentWizardData: {
+            RequestedNumberOfInstallments: paymentInstrument.custom.splitit_NumberOfInstallments,
+            SuccessExitURL:"http://www.yoursucessurl.com",
+            CancelExitURL:"http://www.yourcancelurl.com"
+        }
+    };
+
+    return JSON.stringify(initiateRequest);
+}
+
+/**
+ * Get the request JSON for create operation
+ * @param params
+ */
+function getCreateRequest(params) {
+
+	var order = OrderMgr.getOrder(params.orderNo);
+	var billingAddress = order.billingAddress;
+	var paymentInstrument = order.getPaymentInstruments('SPLITIT')[0];
+	
+	var firstInstallmentAmount = new Decimal(0.00);
+	var selectedInstallment = paymentInstrument.custom.splitit_NumberOfInstallments;
+	var firstPayment = Site.current.preferences.custom.splitit_FirstPayment;
+	var paymentAction = Site.current.preferences.custom.splitit_PaymentAction;
+	var percentageOfOrder = Site.current.preferences.custom.splitit_PercentageOfOrderValue;
+	var autocapture = false;
+	var totalAmount = order.getTotalGrossPrice().value;
+	if(paymentAction.value == "authorize_capture"){
+		autocapture = true;
+	}
+	
+	if(firstPayment.value == "equal"){
+        firstInstallmentAmount = totalAmount/selectedInstallment;
+    }else if(firstPayment.value == "shipping_taxes"){
+        var shippingAmount = order.getShippingTotalPrice().value;//SHIPPING
+        var taxAmount = order.getTotalTax().value;//TAX
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+shippingAmount+taxAmount;
+    }else if(firstPayment.value == "shipping"){
+        var shippingAmount = order.getShippingTotalPrice().value;//SHIPPING
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+shippingAmount;
+    }else if(firstPayment.value == "tax"){
+        var taxAmount = order.getTotalTax().value;//TAX
+        firstInstallmentAmount = (totalAmount/selectedInstallment)+taxAmount;
+    }else if(firstPayment.value == "percentage"){
+        if(percentageOfOrder > 50){
+            percentageOfOrder = 50;
+        }
+        firstInstallmentAmount = ((totalAmount*percentageOfOrder)/100);
+    }
+    
+    firstInstallmentAmount = new Decimal(firstInstallmentAmount);
+
+    var createRequest = {
+   		RequestHeader: {
+		   SessionId: session.privacy.splititSessionId || '',
+		   ApiKey: getPreference('splitit_ApiKey')
+   		},
+        PlanData: {
+            Amount: {
+            	Value: order.getTotalGrossPrice().value,
+            	CurrencyCode: order.getTotalGrossPrice().currencyCode
+            },
+            NumberOfInstallments: paymentInstrument.custom.splitit_NumberOfInstallments,
+            RefOrderNumber: order.orderNo,
+            AutoCapture: autocapture,
+            FirstInstallmentAmount: {
+                    Value: firstInstallmentAmount.round(2).toString(),
+                    CurrencyCode: order.getTotalGrossPrice().currencyCode
+            }
+        },
+        BillingAddress: {
+            AddressLine: billingAddress.address1,
+            AddressLine2: billingAddress.address2,
+            City: billingAddress.city,
+            State: billingAddress.stateCode,
+            Country: billingAddress.countryCode.value,
+            Zip: billingAddress.postalCode
+        },
+        ConsumerData: {
+            FullName: billingAddress.fullName,
+            Email: order.customerEmail,
+            PhoneNumber: billingAddress.phone,
+            CultureName: getLocale()
+        },
+        CreditCardDetails: {
+            CardCvv: session.forms.billing.paymentMethods.creditCardSplitit.cvn.value,
+            CardHolderFullName: paymentInstrument.creditCardHolder,
+            CardNumber: paymentInstrument.creditCardNumber,
+            CardExpYear: paymentInstrument.creditCardExpirationYear,
+            CardExpMonth: paymentInstrument.creditCardExpirationMonth
+        },
+        PlanApprovalEvidence: {
+            AreTermsAndConditionsApproved: 'True'
+        }
+    };
+
+    return JSON.stringify(createRequest);
+}
+
+/**
+ * Get the request JSON for update plan operation
+ * @param params
+ * @returns {string}
+ */
+function getUpdatePlanRequest(params) {
+    var updatePlanRequest = {
+        RequestHeader: {
+            SessionId: session.privacy.splititSessionId || '',
+            ApiKey: getPreference('splitit_ApiKey')
+        },
+        InstallmentPlanNumber: params.installmentPlanNumber,
+        PlanData: {
+            RefOrderNumber: params.orderNo,
+            ExtendedParams: {}
+        }
+    };
+
+    return JSON.stringify(updatePlanRequest);
+}
+
+/**
+ * Get the request JSON for start installment plan operation
+ * @param params
+ * @returns {string}
+ */
+function getStartInstallmentRequest(params) {
+    var startRequest = {
+        RequestHeader: {
+            SessionId: session.privacy.splititSessionId || '',
+            ApiKey: getPreference('splitit_ApiKey')
+        },
+        InstallmentPlanNumber: params.installmentPlanNumber
+    };
+
+    return JSON.stringify(startRequest);
+}
+
+/**
+ * Get the request JSON for cancel plan operation
+ * @param params
+ * @returns {string}
+ */
+function getCancelPlanRequest(params) {
+    var cancelPlanRequest = {
+        RequestHeader: {
+            SessionId: session.privacy.splititSessionId || '',
+            ApiKey: getPreference('splitit_ApiKey')
+        },
+        InstallmentPlanNumber: params.installmentPlanNumber,
+        RefundUnderCancelation : "OnlyIfAFullRefundIsPossible"
+    };
+
+    return JSON.stringify(cancelPlanRequest);
+}
+
+/**
+ * Get the request JSON for refund plan operation
+ * @param params
+ * @returns {string}
+ */
+function getRefundPlanRequest(params) {
+    var refundPlanRequest = {
+        RequestHeader: {
+            SessionId: session.privacy.splititSessionId || '',
+            ApiKey: getPreference('splitit_ApiKey')
+        },
+        InstallmentPlanNumber: params.installmentPlanNumber,
+        Amount : params.amount,
+        _RefundStrategy : "FutureInstallmentsFirst"
+    };
+
+    return JSON.stringify(refundPlanRequest);
+}
+
+/**
+ * Get locale in format needed by Splitit
+ * @returns {string}
+ */
+function getLocale() {
+	return request.httpLocale.toLowerCase().replace('_','-');
+}
+
+/**
+ * Format the error message
+ * @param error
+ * @returns {string}
+ */
+function formatErrorMessage(error) {
+
+    var msg = '(' + error.ErrorCode + ') ' + error.Message;
+
+    if(error.AdditionalInfo) {
+        msg = msg + ' [' + error.AdditionalInfo + ']';
+    }
+
+    msg = msg + Resource.msg('error.message.instructions', 'splitit', '');
+
+    return msg
+}

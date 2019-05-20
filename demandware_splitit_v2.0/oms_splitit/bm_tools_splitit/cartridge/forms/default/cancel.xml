@@ -1,0 +1,6 @@
+<?xml version="1.0"?>	
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<field formid="orderNo" type="string" label="Order Number" mandatory="true"/>
+	<field formid="cancelCode" type="string" label="Cancel Code" mandatory="true"/>
+	<field formid="cancelDesc" type="string" label="Cancel Description" mandatory="true"/>
+</form>

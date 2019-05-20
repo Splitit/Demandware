@@ -1,0 +1,16 @@
+var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
+var ServiceHelper = require('../util/ServiceHelper');
+
+/**
+ * Service registry for Splitit Service
+ */
+module.exports =  LocalServiceRegistry.createService('int_splitit.http.payment.Splitit.SiteGenesis', {
+
+    createRequest: function(service, params) {
+        return ServiceHelper.createRequest(service, params);
+    },
+
+    parseResponse: function(service, response) {
+        return ServiceHelper.responseParser(service, response);
+    }
+});

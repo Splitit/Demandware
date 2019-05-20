@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+
+	<!-- =============================================================== -->
+	<!-- ==                                                           == -->
+	<!-- ==  ADMINISTRATION MENU EXTENSIONS                           == -->
+	<!-- ==                                                           == -->
+	<!-- =============================================================== -->
+	<!--
+	A custom menu item in the Administration section
+-->
+	<menuaction id="customsubmenu_splitit_oms" menupath="orders"
+		position="100" site="true">
+		<name xml:lang="x-default">Splitit OMS</name>
+		<short_description xml:lang="x-default">
+			This extension allows the retailer to cancel and refund the Order.
+		</short_description>
+		<description xml:lang="x-default">
+			This extension allows the retailer to cancel and refund the Order.
+		</description>
+		<!-- no icon specified -->
+		<exec pipeline="BMOrder" node="Search" />
+		<sub-pipelines>		
+			<pipeline name="BMOrder-GetOrders" />
+			<pipeline name="BMOrder-Search" />
+			<pipeline name="BMOrder-Start" />
+			<pipeline name="BMOrder-Cancel" />
+			<pipeline name="BMOrder-Refund" />
+		</sub-pipelines>
+		<parameters>			
+		</parameters>
+		<icon>icons/cancel_order.gif</icon>
+	</menuaction>
+</extensions>
